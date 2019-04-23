@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .error{
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="d-inline-block">Hello {{session["first_name"]}}!</h1>
+        <a href="/logout" class="btn btn-primary d-inline-block ml-5">Logout</a>
+        <a href="/view_stats" class="btn btn-primary d-inline-block ml-5">View Stats</a>
+        <a href="/make_wish" class="btn btn-primary d-inline-block ml-5">Make a Wish!</a>
+        <h3>Your wish list:</h3>
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Date Added</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wishes in wishes.wish %}
+                    {% if wishes.granted == 'No' %}
+                        <tr>
+                            <td>{{wishes['wish']}}</td>
+                            <td>{{wishes['created_at']}}</td>
+                            <td><a href="/delete/{{wishes['id']}}">Remove</a> <a href="/edit_wish/{{wishes['id']}}">Edit    </a><a href="/grant_wish/{{wishes['id']}}">Granted!</a></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Granted wishes:</h3>
+        {% with messages = get_flashed_messages() %}    
+                    {% if messages %}                            
+                    {% for message in messages %}            
+                        <p class='error'>{{message}}</p>                   
+                        {% endfor %}
+                {% endif %}
+            {% endwith %}
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Wisher</th>
+                    <th scope="col">Date Added</th>
+                    <th scope="col">Date Granted</th>
+                    <th scope="col">Likes</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wish in all_wishes %}
+                    {% if wish['granted'] == 'Yes' %}
+                        <tr>
+                            <td>{{wish['wish']}}</td>
+                            <td>{{wish.user.first_name}}</td>
+                            <td>{{wish['created_at']}}</td>
+                            <td>{{wish['granted_at']}}</td>
+                            <td>{% for like in wish_likes %}
+                                    {% if wish.id == like.id %}
+                                        {{like.likes}}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>                       
+                            <td>{% if wish.user.id != session['user_id'] %}
+                                <a href="/like_wish/{{wish['id']}}">Like</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
+</body>
+</html>
